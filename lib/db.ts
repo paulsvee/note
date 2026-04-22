@@ -52,142 +52,47 @@ function seedIfEmpty(database: Database.Database) {
   if (row.count > 0) return;
 
   const timestamp = nowText();
-  const insertFolder = database.prepare(`
-    INSERT INTO folders (id, name, description, sort_order, created_at)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-  const insertNote = database.prepare(`
-    INSERT INTO notes (id, folder_id, title, subtitle, tags, sort_order, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  const insertBlock = database.prepare(`
-    INSERT INTO blocks (id, note_id, type, content, caption, left_content, right_content, image_url, sort_order, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  const insertFolder = database.prepare(`INSERT INTO folders (id, name, description, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`);
+  const insertNote = database.prepare(`INSERT INTO notes (id, folder_id, title, subtitle, tags, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+  const insertBlock = database.prepare(`INSERT INTO blocks (id, note_id, type, content, caption, left_content, right_content, image_url, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
-  [
-    ["folder-doctrine", "교리 연구", "주제별로 깊게 공부하는 핵심 폴더", 0],
-    ["folder-prayer", "기도와 묵상", "개인 적용과 묵상 정리", 1],
-    ["folder-sermon", "설교 정리", "예배 중 받은 인사이트 보관", 2]
-  ].forEach(([id, name, description, sortOrder]) => {
-    insertFolder.run(id, name, description, sortOrder, timestamp);
-  });
+  insertFolder.run("folder-jobs", "Steve Jobs", "Think. Create. Inspire.", 0, timestamp);
+  insertFolder.run("folder-einstein", "Albert Einstein", "Curiosity & Imagination", 1, timestamp);
+  insertFolder.run("folder-davinci", "Leonardo da Vinci", "Art Meets Science", 2, timestamp);
 
-  insertNote.run(
-    "note-holy-spirit",
-    "folder-doctrine",
-    "성령",
-    "인도하심, 내주하심, 열매, 사역 정리",
-    JSON.stringify(["오늘의 주제", "핵심"]),
-    0,
-    timestamp,
-    timestamp
-  );
-  insertNote.run(
-    "note-faith",
-    "folder-doctrine",
-    "믿음",
-    "히브리서 11장 중심 정리",
-    JSON.stringify(["누적 연구"]),
-    1,
-    timestamp,
-    timestamp
-  );
-  insertNote.run(
-    "note-prayer",
-    "folder-prayer",
-    "아침 기도 메모",
-    "짧은 한 줄 묵상과 기도 제목",
-    JSON.stringify(["묵상"]),
-    0,
-    timestamp,
-    timestamp
-  );
+  insertNote.run("note-jobs-1", "folder-jobs", "Think Different", "Core philosophy and the creative mindset", JSON.stringify(["philosophy", "creativity"]), 0, timestamp, timestamp);
+  insertNote.run("note-jobs-2", "folder-jobs", "Product Design", "Design is not just aesthetics — it is how it works", JSON.stringify(["design"]), 1, timestamp, timestamp);
+  insertNote.run("note-einstein-1", "folder-einstein", "On Curiosity", "The fuel behind every great discovery", JSON.stringify(["curiosity", "science"]), 0, timestamp, timestamp);
+  insertNote.run("note-einstein-2", "folder-einstein", "Simplicity & Truth", "Elegant expressions of universal laws", JSON.stringify(["simplicity"]), 1, timestamp, timestamp);
+  insertNote.run("note-davinci-1", "folder-davinci", "The Renaissance Mind", "Where art and science become one", JSON.stringify(["renaissance", "art"]), 0, timestamp, timestamp);
+  insertNote.run("note-davinci-2", "folder-davinci", "Observation & Mastery", "Seeing what others overlook", JSON.stringify(["observation"]), 1, timestamp, timestamp);
 
-  insertBlock.run(
-    "block-line-1",
-    "note-holy-spirit",
-    "line",
-    "성령은 단순한 힘이 아니라 인격적으로 역사하시는 하나님이시다.",
-    null,
-    null,
-    null,
-    null,
-    0,
-    timestamp
-  );
-  insertBlock.run(
-    "block-verse-1",
-    "note-holy-spirit",
-    "verse",
-    "요한복음 14:26 | 보혜사 성령께서 모든 것을 가르치시고 생각나게 하신다.",
-    null,
-    null,
-    null,
-    null,
-    1,
-    timestamp
-  );
-  insertBlock.run(
-    "block-text-1",
-    "note-holy-spirit",
-    "text",
-    "<p>오늘 공부 포인트는 세 가지였다.</p><p><u>성령의 인도하심</u>은 감정만이 아니라 말씀과 열매로 분별해야 한다.</p><p>비슷한 주제를 만날 때마다 이 노트에 이어 붙이기 좋게 블록형으로 남긴다.</p>",
-    null,
-    null,
-    null,
-    null,
-    2,
-    timestamp
-  );
-  insertBlock.run(
-    "block-split-1",
-    "note-holy-spirit",
-    "split",
-    null,
-    null,
-    "<p><strong>관찰</strong></p><p>성령의 열매는 관계 속에서 드러난다.</p>",
-    "<p><strong>적용</strong></p><p>오늘 말과 반응에서 오래 참음이 보였는지 점검한다.</p>",
-    null,
-    3,
-    timestamp
-  );
-  insertBlock.run(
-    "block-image-1",
-    "note-holy-spirit",
-    "image",
-    null,
-    "말씀 필기 사진이나 캡처 이미지를 붙여 두는 자리",
-    null,
-    null,
-    "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=1200&q=80",
-    4,
-    timestamp
-  );
-  insertBlock.run(
-    "block-faith-1",
-    "note-faith",
-    "line",
-    "믿음은 불확실함을 미화하는 것이 아니라 하나님의 신실하심을 신뢰하는 태도다.",
-    null,
-    null,
-    null,
-    null,
-    0,
-    timestamp
-  );
-  insertBlock.run(
-    "block-prayer-1",
-    "note-prayer",
-    "line",
-    "오늘도 말씀보다 내 감정이 앞서지 않게 해 주세요.",
-    null,
-    null,
-    null,
-    null,
-    0,
-    timestamp
-  );
+  insertBlock.run("block-j1-1", "note-jobs-1", "line", "The only way to do great work is to love what you do.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-j1-2", "note-jobs-1", "verse", "Stanford Commencement, 2005 | Stay hungry. Stay foolish.", null, null, null, null, 1, timestamp);
+  insertBlock.run("block-j1-3", "note-jobs-1", "text", "<p>Jobs believed that the intersection of <strong>technology</strong> and the <strong>liberal arts</strong> created something magical. He did not just build products — he built experiences.</p><p>His obsession with simplicity came from a deep belief that complexity is a form of intellectual laziness.</p>", null, null, null, null, 2, timestamp);
+  insertBlock.run("block-j1-4", "note-jobs-1", "split", null, null, "<p><strong>Principle</strong></p><p>Focus means saying no to a thousand good ideas.</p>", "<p><strong>Example</strong></p><p>When Jobs returned to Apple, he cut 70% of products to focus on just four.</p>", null, 3, timestamp);
+
+  insertBlock.run("block-j2-1", "note-jobs-2", "line", "Design is not just what it looks like. Design is how it works.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-j2-2", "note-jobs-2", "line", "Creativity is just connecting things.", null, null, null, null, 1, timestamp);
+  insertBlock.run("block-j2-3", "note-jobs-2", "text", "<p>Jobs insisted that engineering and design were inseparable. The back of every Mac had to be as beautiful as the front — even if no one would ever see it.</p><p>He once sent a team back to redesign internal circuit boards for aesthetic reasons. <u>Good design goes all the way down.</u></p>", null, null, null, null, 2, timestamp);
+
+  insertBlock.run("block-e1-1", "note-einstein-1", "line", "Imagination is more important than knowledge.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-e1-2", "note-einstein-1", "verse", "Einstein, 1929 | I have no special talents. I am only passionately curious.", null, null, null, null, 1, timestamp);
+  insertBlock.run("block-e1-3", "note-einstein-1", "text", "<p>Einstein believed that <u>curiosity</u> was the essential engine of science. He ran thought experiments — imagining himself riding beams of light — long before he had mathematical proof.</p>", null, null, null, null, 2, timestamp);
+  insertBlock.run("block-e1-4", "note-einstein-1", "split", null, null, "<p><strong>Thought Experiment</strong></p><p>What would the world look like if you rode alongside a beam of light?</p>", "<p><strong>Insight</strong></p><p>This led directly to the Special Theory of Relativity — time and space are not fixed constants.</p>", null, 3, timestamp);
+
+  insertBlock.run("block-e2-1", "note-einstein-2", "line", "Everything should be made as simple as possible, but not simpler.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-e2-2", "note-einstein-2", "line", "A person who never made a mistake never tried anything new.", null, null, null, null, 1, timestamp);
+  insertBlock.run("block-e2-3", "note-einstein-2", "text", "<p>Einstein's genius was not just in complex equations — it was in finding the <strong>simplest</strong> expression of universal truths. E=mc² is elegant precisely because it is brief.</p><p>His method: strip away everything unnecessary until only the essential truth remains.</p>", null, null, null, null, 2, timestamp);
+
+  insertBlock.run("block-d1-1", "note-davinci-1", "line", "Simplicity is the ultimate sophistication.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-d1-2", "note-davinci-1", "line", "Learning never exhausts the mind.", null, null, null, null, 1, timestamp);
+  insertBlock.run("block-d1-3", "note-davinci-1", "text", "<p>Da Vinci kept thousands of pages of notebooks — filled with anatomy, engineering, botany, and art. He saw no separation between these disciplines. <strong>Everything was connected.</strong></p>", null, null, null, null, 2, timestamp);
+  insertBlock.run("block-d1-4", "note-davinci-1", "verse", "Notebook, ~1490 | The noblest pleasure is the joy of understanding.", null, null, null, null, 3, timestamp);
+
+  insertBlock.run("block-d2-1", "note-davinci-2", "line", "Art is never finished, only abandoned.", null, null, null, null, 0, timestamp);
+  insertBlock.run("block-d2-2", "note-davinci-2", "split", null, null, "<p><strong>Observation</strong></p><p>Da Vinci spent years studying water currents, bird wings, and human muscles — not for any project, but for pure understanding.</p>", "<p><strong>Application</strong></p><p>This obsessive study directly informed his paintings, sculptures, and engineering designs centuries ahead of their time.</p>", null, 1, timestamp);
+  insertBlock.run("block-d2-3", "note-davinci-2", "text", "<p>He was left-handed, likely dyslexic, and wrote in mirror script — yet produced works of breathtaking precision. His secret: <u>relentless observation and absolute attention to detail</u>.</p>", null, null, null, null, 2, timestamp);
 }
 
 function getDb() {
