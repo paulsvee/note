@@ -1,0 +1,1533 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* =================================================================
+   ★ 빠른 검색 가이드 (Cmd+F 로 찾기)
+   -----------------------------------------------------------------
+   포인트 컬러 (타이틀·날짜·버튼 색)  → 검색: POINT COLOR
+   다크모드 색상 변수                  → 검색: DARK MODE
+   라이트모드 색상 변수                → 검색: LIGHT MODE
+   상단 네비바                        → 검색: TOPBAR
+   타이틀 "One PSV" 텍스트            → 검색: psv-titleText
+   서브타이틀 "한줄 메모장"            → 검색: psv-subText
+   테마 토글 버튼 (☀︎/☾)              → 검색: psv-circle
+   ================================================================= */
+
+/* ── POINT COLOR — 다크/라이트 공통 고정 ── */
+:root {
+  --point:    #a3e635;          /* ★ 포인트 컬러 — 타이틀·날짜·추가버튼·today숫자 */
+  --point-fg: rgba(20,50,5,0.88); /* 포인트 컬러 위 텍스트 색 (버튼 글자) — 밝은 배경이므로 어둡게 */
+}
+
+/* ── DARK MODE ── */
+:root {
+  /* 배경 레이어 ----------------------------------------------- */
+  --bg:          #17212b;   /* 전체 최하단 배경 — 텔레그램 느낌 네이비 */
+  --surface:     #0f1923;   /* 사이드바·모달 배경 — 더 어두운 네이비 */
+  --surface2:    #1d3048;   /* 버튼 hover·선택 배경 — 블루 틴트 */
+  --pill-bg:     #1a2535;   /* 문장 박스(pill) 기본 배경 */
+  --input-bg:    #2a4610;   /* 인풋바(메모 입력 영역) 배경 — 쨍한 라임 포인트 어두운 버전 */
+  --input-text:  var(--point); /* 인풋바 텍스트 색 — 포인트 컬러(라임)로 다크 배경에서 선명하게 */
+  --date-bg:     #344f14;   /* 날짜 선택 input 배경 — input-bg보다 살짝 어두운 동일 계열 */
+  --date-border: #263f10;   /* 날짜 input 테두리 */
+  --today-outer: #131d27;   /* 오늘 날짜 행 바깥 배경 강조 — 배경보다 어둡고 사이드바보다 밝게 */
+
+  /* 선(border) ------------------------------------------------ */
+  --border:  rgba(255,255,255,0.07);  /* 사이드바·내비 구분선 */
+  --border2: rgba(255,255,255,0.11);  /* pill 테두리 */
+
+  /* 텍스트 ---------------------------------------------------- */
+  --text:      rgba(255,255,255,0.85);  /* 본문 텍스트 */
+  --pill-text-dark: rgba(255,255,255,0.78); /* pill 안 텍스트 */
+  --text2: rgba(255,255,255,0.50);  /* 보조 텍스트 (폴더명 비활성 등) */
+  --text3: rgba(255,255,255,0.28);  /* 흐린 텍스트 (날짜숫자·카운트) */
+
+  /* 네비바 ---------------------------------------------------- */
+  --topbar-bg:     rgba(15,25,35,0.98);    /* 네비바 배경 */
+  --topbar-border: rgba(255,255,255,0.07);  /* 네비바 하단 구분선 */
+  --subtext-color: rgba(255,255,255,0.40); /* "한줄 메모장" 서브타이틀 */
+
+  /* 기타 ----------------------------------------------------- */
+  --divider:      rgba(255,255,255,0.04);   /* 날짜 사이 구분선 — 배경보다 아주 살짝 밝게 */
+  --pill-overlay: rgba(0,0,0,0.40);        /* 색상 pill 어둡게 누르는 레이어 */
+  --pill-text:    rgba(255,255,255,0.76);  /* 색상 pill 텍스트 — 살짝 회색 */
+
+  --sidebar-w: 260px;
+  --input-h:   56px;
+  --note-composer-height: 66px;
+  --note-thread-gap: 8px;
+}
+
+/* ── LIGHT MODE ── */
+[data-theme="light"] {
+  /* 포인트 컬러 — 라이트 모드는 이전 올리브 유지 */
+  --point:    #7cb518;
+  --point-fg: #fff;
+
+  /* 배경 레이어 ----------------------------------------------- */
+  --bg:          #ffffff;   /* 전체 최하단 배경 */
+  --surface:     #ffffff;   /* 사이드바 배경 없음 — bg와 동일 */
+  --surface2:    #f3f3f3;   /* 버튼 hover·선택 배경 */
+  --pill-bg:     #f9f9f9;   /* 문장 박스(pill) — 아주 밝은 회색 */
+  --input-bg:    var(--point); /* 인풋바(메모 입력 영역) 배경 — 포인트 컬러 */
+  --input-text:  #ffffff;      /* 인풋바 텍스트 색 — 흰색 */
+  --date-bg:     rgba(0,0,0,0.14); /* 날짜 선택 input 배경 — point 위 어두운 레이어 */
+  --date-border: rgba(0,0,0,0.12); /* 날짜 input 테두리 — 라이트모드 은은하게 */
+  --today-outer: #f5f5f5;   /* 오늘 날짜 행 바깥 배경 강조 */
+
+  /* 선(border) ------------------------------------------------ */
+  --border:  rgba(0,0,0,0.04);  /* 사이드바 구분선·날짜 구분선 */
+  --border2: rgba(0,0,0,0.07);  /* pill 테두리·버튼 테두리 */
+
+  /* 텍스트 ---------------------------------------------------- */
+  --text:  rgba(0,0,0,0.82);  /* 본문 텍스트 */
+  --text2: rgba(0,0,0,0.36);  /* 보조 텍스트 */
+  --text3: rgba(0,0,0,0.20);  /* 흐린 텍스트 */
+
+  /* 네비바 ---------------------------------------------------- */
+  --topbar-bg:     rgba(255,255,255,0.92); /* 네비바 배경 */
+  --topbar-border: rgba(0,0,0,0.04);       /* 네비바 하단 구분선 */
+  --subtext-color: rgba(0,0,0,0.36);       /* "한줄 메모장" 서브타이틀 */
+
+  /* 기타 ----------------------------------------------------- */
+  --divider:      rgba(0,0,0,0.04);         /* 날짜 사이 구분선 */
+  --pill-overlay: rgba(255,255,255,0.48);   /* 색상 pill 밝게 올리는 레이어 */
+  --pill-text:    rgba(0,0,0,0.80);         /* 색상 pill 텍스트 */
+}
+
+/* ================================================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── 사이드바 로고 영역 ── */
+.psv-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 10px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+/* 브랜드 영역 (타이틀+서브타이틀 묶음) */
+.psv-brand { display: flex; flex-direction: column; gap: 2px; }
+
+/* 타이틀 "One PSV" — psv-titleText */
+.psv-titleText {
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--point);   /* ★ 포인트 컬러 */
+  line-height: 1.2;
+}
+.psv-titleInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 60px;
+  max-width: 320px;
+}
+.psv-titleInput:focus {
+  opacity: 0.8;
+}
+
+/* 서브타이틀 "한줄 메모장" — psv-subText */
+.psv-subText {
+  font-size: 12px;
+  color: var(--subtext-color);
+  line-height: 1.3;
+}
+
+/* 테마 토글 버튼 ☀︎/☾ — psv-circle */
+.psv-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  cursor: pointer;
+  color: var(--text2);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.psv-circle:hover {
+  background: transparent;
+  border-color: var(--text2);
+  color: var(--text);
+}
+
+/* ── 케밥 메뉴 버튼 (세로 점 3개) ── */
+.psv-kebab-btn {
+  width: 32px;
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.psv-kebab-btn:hover {
+  background: var(--surface2);
+  color: var(--text2);
+}
+
+/* ── 설정 드롭다운 ── */
+.psv-settings-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  padding: 6px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.psv-settings-label {
+  padding: 6px 10px 4px;
+}
+.psv-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+.psv-settings-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* PillRow — 각 줄 가로 스크롤바 완전 숨김 */
+.pill-row::-webkit-scrollbar { display: none; }
+
+/* ── 스크롤바 (todo 기준 — 전역 적용) ── */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.22) rgba(255,255,255,0.06);
+  overscroll-behavior: none;
+}
+
+body {
+  overscroll-behavior: none;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 999px; border: 2px solid rgba(255,255,255,0.04); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.26); }
+
+/* 사이드바만 slim */
+.psv-sidebar::-webkit-scrollbar { width: 4px; }
+.psv-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+/* ── 사이드바 — 데스크탑 고정 / 모바일 슬라이딩 ── */
+.psv-sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  position: relative;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 8px;
+  gap: 2px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), width 0.24s cubic-bezier(0.4,0,0.2,1), min-width 0.24s cubic-bezier(0.4,0,0.2,1);
+  z-index: 200;
+  background: var(--surface);
+  scrollbar-width: none;
+}
+.psv-sidebar::-webkit-scrollbar { display: none; }
+
+/* 사이드바 리사이즈 핸들 */
+.psv-sidebar > div[style*="col-resize"]:hover {
+  background: rgba(255,255,255,0.10);
+}
+
+/* All 행 컨테이너 — 액티브 배경이 "+" 버튼까지 포함 */
+.psv-sidebar-all-row {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  transition: background 0.12s, color 0.12s;
+}
+.psv-sidebar-all-row:hover { background: var(--border); }
+.psv-sidebar-all-row:hover .psv-sidebar-item--all { color: var(--text); }
+.psv-sidebar-all-row.is-active { background: var(--surface2); }
+.psv-sidebar-all-row.is-active .psv-sidebar-item--all { color: var(--text); font-weight: 700; }
+
+/* All 행 내부 버튼 — 자체 배경/호버 없음 */
+.psv-sidebar-item--all { border-radius: 0 !important; background: transparent !important; }
+.psv-sidebar-item--all:hover { background: transparent !important; }
+
+/* 사이드바 아이콘 버튼 (+ 및 접기) */
+.psv-sidebar-iconbtn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  margin-right: 4px;
+}
+.psv-sidebar-iconbtn:hover {
+  background: rgba(255,255,255,0.11);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.28);
+}
+.psv-sidebar-collapse-btn { margin-right: 6px; }
+
+/* 사이드바 아이템 공통 */
+.psv-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-right: 28px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+  letter-spacing: 0.01em;
+}
+.psv-sidebar-item:hover { background: var(--border); color: var(--text); }
+.psv-sidebar-item.is-active {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* 폴더 추가 버튼 */
+.psv-sidebar-addbtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px dashed var(--border2);
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+  transition: all 0.15s;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+}
+.psv-sidebar-addbtn:hover {
+  color: var(--text2);
+  border-color: var(--text2);
+}
+
+/* 햄버거 버튼 — 데스크탑에서는 숨김 */
+.psv-hamburger {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.psv-hamburger:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* 딤 오버레이 */
+.psv-sidebar-dim {
+  display: none;
+}
+
+/* ── 모바일 (768px 이하) ── */
+@media (max-width: 768px) {
+  .psv-hamburger {
+    display: inline-flex;
+  }
+
+  .psv-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 500;
+    padding-top: 20px;
+  }
+
+  .psv-sidebar--open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.35);
+    border-right: 1px solid rgba(255,255,255,0.14) !important;
+  }
+
+  .psv-sidebar-dim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 499;
+    backdrop-filter: blur(2px);
+  }
+}
+
+/* 다크 모드 인풋바 placeholder — 포인트 컬러 계열 흐리게 */
+.psv-input-bar input::placeholder {
+  color: rgba(163,230,53,0.38);
+}
+
+/* 라이트 모드 사이드바 아이템 타이틀 — 다크보다 진하게 */
+[data-theme="light"] .psv-sidebar-item {
+  color: rgba(0,0,0,0.62);
+}
+[data-theme="light"] .psv-sidebar-item:hover,
+[data-theme="light"] .psv-sidebar-item.is-active {
+  color: var(--text);
+}
+[data-theme="light"] .psv-sidebar-iconbtn {
+  border-color: rgba(0,0,0,0.16);
+  background: rgba(0,0,0,0.04);
+  color: rgba(0,0,0,0.38);
+}
+[data-theme="light"] .psv-sidebar-iconbtn:hover {
+  background: rgba(0,0,0,0.09);
+  color: rgba(0,0,0,0.72);
+  border-color: rgba(0,0,0,0.28);
+}
+[data-theme="light"] .psv-sidebar-all-row:hover .psv-sidebar-item--all {
+  color: var(--text);
+}
+[data-theme="light"] .psv-sidebar-all-row.is-active .psv-sidebar-item--all {
+  color: var(--text);
+}
+
+/* 라이트 모드 인풋바 placeholder */
+[data-theme="light"] .psv-input-bar input::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+/* note overrides */
+:root {
+  --point: #00d4ff;
+  --point-fg: rgba(0, 28, 48, 0.92);
+  --input-bg: #0078b8;
+  --date-bg: #0088cc;
+  --date-border: #00b8f0;
+  --today-outer: #151f2d;
+  --surface2: #1f3143;
+  --note-header-height: 60px;
+}
+
+.note-shell {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.psv-sidebar {
+  width: 286px;
+  min-width: 286px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+.note-rail-menu,
+.note-rail-add {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #7f93ab;
+  cursor: pointer;
+}
+
+.note-rail-menu:hover,
+.note-rail-add:hover {
+  background: rgba(0, 212, 255, 0.12);
+  color: #60e0ff;
+}
+
+.note-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #7a90a8;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.note-chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #adc4dc;
+}
+
+.note-chip.active {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: #60e0ff;
+}
+
+.note-chip-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.note-chip-count {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.65;
+  min-width: 12px;
+  text-align: center;
+  line-height: 1;
+  padding-top: 1px;
+}
+
+.note-list-pane {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  border-left: none !important;
+  border-right: 1px solid rgba(255,255,255,0.22);
+  box-shadow: none !important;
+}
+
+.note-shell,
+.psv-sidebar,
+.note-main,
+.note-list-pane {
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+.note-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 16px;
+  height: var(--note-header-height);
+  box-sizing: border-box;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.note-sidebar-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--point);
+  text-shadow: 0 0 0.01px currentColor, 0 0 0.01px currentColor;
+}
+
+.note-sidebar-subtitle {
+  margin-top: 1px;
+  font-size: 12px;
+  line-height: 1.1;
+  color: var(--subtext-color);
+}
+
+.note-sidebar-brand .psv-brand {
+  gap: 0;
+  padding-top: 0;
+}
+
+.note-sidebar-brand-action {
+  width: 26px;
+  height: 26px;
+  margin-top: 0;
+  margin-right: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.note-sidebar-brand-action:hover {
+  background: transparent;
+  border-color: var(--text2);
+  color: var(--text);
+}
+
+.note-list-search {
+  padding: 14px 12px 12px;
+}
+
+.note-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-list-search input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  background: #253243;
+  color: #d7e5f9;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.note-list-search input::placeholder {
+  color: #8da3bf;
+}
+
+.note-search-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.note-search-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: #8da3bf;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.14s, color 0.14s;
+}
+
+.note-search-menu-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: #d7e5f9;
+}
+
+.note-search-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.note-search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  background: #1e2d3d;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 4px;
+  min-width: 130px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.note-search-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #d7e5f9;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: background 0.12s;
+}
+
+.note-search-dropdown button:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.note-list-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 8px 0;
+}
+
+.note-folder-tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-inline: 12px;
+}
+
+.note-folder-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.note-folder-tabs .note-rail-add {
+  flex-shrink: 0;
+}
+
+.note-chat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 12px 8px;
+}
+
+.note-chat-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  position: relative;
+}
+
+.note-chat-row:hover,
+.note-chat-row.active {
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.note-chat-row-main {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  color: #eff5ff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.note-row-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+  padding-right: 6px;
+}
+
+.note-row-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  color: #8da3bf;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: background 0.12s, color 0.12s;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s;
+}
+
+.note-chat-row:hover .note-row-menu-btn,
+.note-chat-row.active .note-row-menu-btn {
+  opacity: 1;
+}
+
+.note-row-menu-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #d7e5f9;
+}
+
+.note-row-dropdown {
+  right: 0;
+  left: auto;
+  top: calc(100% + 2px);
+}
+
+.note-search-dropdown button.danger {
+  color: #ff7a7a;
+}
+
+.note-search-dropdown button.danger:hover {
+  background: rgba(255, 80, 80, 0.12);
+}
+
+.note-chat-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.note-chat-copy strong,
+.note-chat-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-chat-copy strong {
+  font-size: 13px;
+}
+
+.note-chat-copy small {
+  font-size: 11px;
+  color: #60ccee;
+}
+
+.note-chat-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  color: #8fa7c3;
+  font-size: 11px;
+}
+
+.note-chat-meta em {
+  font-style: normal;
+}
+
+.note-chat-meta b {
+  min-width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  background: rgba(94, 131, 178, 0.78);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.note-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border-left: 1px solid rgba(255,255,255,0.14);
+  background: #182432;
+}
+
+.note-main::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: var(--border);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.note-viewpane {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.note-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: var(--note-header-height);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border);
+  background: #182432;
+}
+
+.note-topbar-copy {
+  min-width: 0;
+  flex: 1;
+  padding-top: 2px;
+}
+
+.note-title-count {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text3);
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.02em;
+}
+
+.note-title-input,
+.note-subtitle-input,
+.note-image-caption,
+.note-secondary-input,
+.note-composer-bar input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+}
+
+.note-title-input {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--point);
+}
+
+.note-subtitle-input {
+  margin-top: 3px;
+  resize: none;
+  min-height: 20px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.note-status-chip {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--pill-bg);
+  color: var(--text2);
+  font-size: 11px;
+}
+
+.note-scroll {
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  padding: 14px;
+  scroll-padding-bottom: var(--note-thread-gap);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  overscroll-behavior: none;
+  touch-action: pan-y pinch-zoom;
+}
+
+.note-scroll.ready {
+  opacity: 1;
+}
+
+.note-thread {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  width: 100%;
+}
+
+.note-dropzone {
+  height: 6px;
+  border-radius: 999px;
+}
+
+.note-dropzone.active {
+  background: rgba(79, 134, 255, 0.42);
+  box-shadow: 0 0 0 1px rgba(79, 134, 255, 0.35);
+}
+
+.note-bubble {
+  max-width: 92%;
+  width: fit-content;
+  border: 1px solid var(--border2);
+  background: var(--pill-bg);
+  border-radius: 18px;
+  padding: 8px 16px;
+  color: var(--pill-text-dark);
+  align-self: flex-start;
+  scroll-margin-bottom: var(--note-thread-gap);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.note-bubble.text {
+  max-width: min(92%, 860px);
+}
+
+.note-bubble-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.note-bubble-inline--image {
+  align-items: flex-start;
+}
+
+.note-bubble-dots {
+  flex-shrink: 0;
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.note-bubble:hover .note-bubble-dots {
+  opacity: 1;
+}
+
+.note-bubble-dots:hover {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+.note-bubble.image {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.note-image-wrap {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+
+.note-image-img {
+  display: block;
+  border-radius: 12px;
+  cursor: zoom-in;
+}
+
+.note-image-dots {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.52);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.note-bubble:hover .note-image-dots {
+  opacity: 1;
+}
+
+.note-image-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  padding: 24px;
+}
+
+.note-image-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 14px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  cursor: default;
+}
+
+.note-preview-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 48px;
+  line-height: 1;
+  width: 48px;
+  height: 64px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+  z-index: 1;
+}
+
+.note-preview-nav:hover {
+  color: #fff;
+}
+
+.note-preview-nav--prev { left: 24px; }
+.note-preview-nav--next { right: 24px; }
+
+
+.note-display-text {
+  color: #edf3ff;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  cursor: text;
+  padding: 2px 0 4px;
+}
+
+.note-display-text.rich {
+  white-space: normal;
+}
+
+.note-display-text.verse {
+  color: #dce9ff;
+}
+
+.note-display-text.rich p {
+  margin: 0 0 12px;
+}
+
+.note-display-text.rich p:last-child {
+  margin-bottom: 0;
+}
+
+.note-edit-area {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  color: #edf3ff;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: -0.02em;
+  font-family: inherit;
+  font-weight: 400;
+  overflow: hidden;
+}
+
+.note-edit-area.rich {
+  min-height: 78px;
+}
+
+.note-image-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.note-image-stack img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.note-image-caption {
+  font-size: 14px;
+  color: #d8e4f9;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.note-empty,
+.note-error {
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border2);
+  background: var(--pill-bg);
+  color: var(--text2);
+}
+
+.note-error {
+  margin-bottom: 12px;
+  color: #ffb8c6;
+}
+
+.note-composer-wrap {
+  flex-shrink: 0;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(23,33,43,0.74), rgba(23,33,43,0.98));
+}
+
+.note-type-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 8px;
+}
+
+.note-type-row button {
+  border: 1px solid var(--border2);
+  background: var(--pill-bg);
+  color: var(--text2);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.note-type-row button.active {
+  border-color: var(--point);
+  color: var(--point);
+}
+
+.note-composer-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 46px;
+  border: 1px solid var(--point);
+  border-radius: 12px;
+  background: var(--input-bg);
+}
+
+.note-composer-bar input {
+  font-size: 13px;
+  color: #eaf1ff;
+}
+
+.note-composer-bar input::placeholder {
+  color: rgba(234, 241, 255, 0.45);
+}
+
+.note-secondary-input {
+  max-width: 180px;
+}
+
+.note-upload-btn,
+.note-send-btn {
+  flex-shrink: 0;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  color: #eff4ff;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.note-send-btn {
+  background: rgba(255,255,255,0.14);
+}
+
+.note-sidebar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(135deg,#4a90d9,#5c6bc0);
+}
+
+.note-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.note-confirm-box {
+  width: min(320px, calc(100vw - 24px));
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #16202d;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  padding: 18px;
+}
+
+.note-prompt-box {
+  width: min(520px, calc(100vw - 48px));
+  min-width: 280px;
+  border-radius: 14px;
+  border: 1px solid var(--border2);
+  background: #16202d;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  padding: 22px 22px 18px;
+}
+
+.note-prompt-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 14px;
+}
+
+.note-prompt-input {
+  width: 100%;
+  height: 44px;
+  margin-top: 0;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  font-family: "Noto Sans KR", sans-serif;
+  transition: border-color 0.18s ease;
+}
+
+.note-prompt-input::placeholder {
+  color: var(--text3);
+}
+
+.note-prompt-input:focus {
+  border-color: var(--point);
+}
+
+.note-confirm-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f3f8ff;
+}
+
+.note-confirm-copy {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8ea2bc;
+  line-height: 1.6;
+}
+
+.note-confirm-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.note-edit-folder-section {
+  margin-top: 14px;
+}
+
+.note-edit-folder-label {
+  font-size: 11px;
+  color: #8da3bf;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.note-edit-folder-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.note-edit-folder-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #aabdd6;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.note-edit-folder-pill:hover {
+  background: rgba(0,212,255,0.12);
+  border-color: rgba(0,212,255,0.4);
+  color: #80e8ff;
+}
+
+.note-edit-folder-pill.active {
+  background: rgba(0,212,255,0.18);
+  border-color: #00d4ff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.note-edit-modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-edit-modal-right {
+  display: flex;
+  gap: 8px;
+}
+
+.note-confirm-cancel,
+.note-confirm-delete {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.note-confirm-cancel {
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: #90a6c1;
+}
+
+.note-confirm-delete {
+  border: 1px solid rgba(255,87,87,0.22);
+  background: rgba(255,87,87,0.12);
+  color: #ffb4b4;
+}
+
+.note-prompt-confirm {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 7px;
+  border: none;
+  background: var(--surface2);
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.note-prompt-confirm:disabled {
+  cursor: default;
+}
+
+.note-prompt-confirm:not(:disabled) {
+  background: var(--point);
+  color: var(--point-fg);
+}
+
+@media (max-width: 768px) {
+  .note-main::before {
+    display: none;
+  }
+
+  .psv-sidebar {
+    width: 100%;
+    min-width: 0;
+    position: fixed;
+    inset: 0 auto 0 0;
+    max-width: 400px;
+    z-index: 500;
+    transform: translateX(-100%);
+    transition: transform 0.24s ease;
+  }
+
+  .psv-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .note-bubble {
+    max-width: 100%;
+  }
+
+  .note-sidebar-brand {
+    padding-top: 18px;
+  }
+
+  .note-composer-bar {
+    height: auto;
+    min-height: 56px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .note-secondary-input {
+    max-width: none;
+  }
+}
