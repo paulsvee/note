@@ -95,6 +95,66 @@ function seedIfEmpty(database: Database.Database) {
   insertBlock.run("block-d2-3", "note-davinci-2", "text", "<p>He was left-handed, likely dyslexic, and wrote in mirror script — yet produced works of breathtaking precision. His secret: <u>relentless observation and absolute attention to detail</u>.</p>", null, null, null, null, 2, timestamp);
 }
 
+function seedExpandedContent(database: Database.Database) {
+  const timestamp = nowText();
+  const insertFolder = database.prepare(`INSERT OR IGNORE INTO folders (id, name, description, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`);
+  const insertNote = database.prepare(`INSERT OR IGNORE INTO notes (id, folder_id, title, subtitle, tags, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+  const insertBlockStatement = database.prepare(`
+    INSERT OR IGNORE INTO blocks
+      (id, note_id, type, content, caption, left_content, right_content, image_url, color, sort_order, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const insertBlock = {
+    run: (...values: unknown[]) => {
+      if (values.length !== 11) {
+        throw new Error(`Expanded seed block ${String(values[0])} has ${values.length} values; expected 11.`);
+      }
+      return insertBlockStatement.run(...values);
+    }
+  };
+
+  insertFolder.run("folder-jobs", "Steve Jobs", "Think. Create. Inspire.", 0, timestamp);
+  insertFolder.run("folder-einstein", "Albert Einstein", "Curiosity & Imagination", 1, timestamp);
+  insertFolder.run("folder-davinci", "Leonardo da Vinci", "Art Meets Science", 2, timestamp);
+
+  insertNote.run("note-jobs-3", "folder-jobs", "Keynotes & Storytelling", "How Jobs turned product launches into clear stories", JSON.stringify(["keynote", "storytelling", "presentation"]), 2, timestamp, timestamp);
+  insertNote.run("note-einstein-3", "folder-einstein", "Relativity Notes", "A compact map of the ideas behind relativity", JSON.stringify(["relativity", "physics", "time"]), 2, timestamp, timestamp);
+  insertNote.run("note-davinci-3", "folder-davinci", "Notebook System", "How observation became a personal knowledge engine", JSON.stringify(["notebook", "system", "learning"]), 2, timestamp, timestamp);
+
+  insertBlock.run("block-j1-5", "note-jobs-1", "image", null, "Steve Jobs portrait reference for the Think Different note.", null, null, "https://commons.wikimedia.org/wiki/Special:FilePath/Steve%20Jobs%20Headshot%202010-CROP.jpg", null, 4, timestamp);
+  insertBlock.run("block-j1-6", "note-jobs-1", "text", "<p>The practical lesson is not to imitate Jobs' personality. It is to protect the quality bar: fewer priorities, clearer taste, and a willingness to revise until the idea feels inevitable.</p><p>For a working note, that turns into three questions: What is the one sentence? What should disappear? What must feel effortless to the user?</p>", null, null, null, null, "#00E5FF", 5, timestamp);
+
+  insertBlock.run("block-j2-4", "note-jobs-2", "split", null, null, "<p><strong>Surface</strong></p><p>Shape, color, weight, materials, typography, and the first impression.</p>", "<p><strong>Behavior</strong></p><p>Speed, defaults, affordances, error states, and the feeling that the object understands you.</p>", null, "#82B1FF", 3, timestamp);
+  insertBlock.run("block-j2-5", "note-jobs-2", "text", "<p>Product design becomes stronger when the team treats every hidden detail as part of the experience. The user may never see the internal decision, but they feel the reduced friction.</p>", null, null, null, null, null, 4, timestamp);
+
+  insertBlock.run("block-j3-1", "note-jobs-3", "line", "A keynote is a product experience before the product reaches a user's hand.", null, null, null, null, null, 0, timestamp);
+  insertBlock.run("block-j3-2", "note-jobs-3", "text", "<p>Jobs' launches usually followed a simple rhythm: name the problem, remove noise, reveal the object, then let one unforgettable phrase carry the memory home.</p><p>The point was not theatrical excess. It was compression. A complex product became a story anyone could repeat.</p>", null, null, null, null, null, 1, timestamp);
+  insertBlock.run("block-j3-3", "note-jobs-3", "split", null, null, "<p><strong>Story Move</strong></p><p>Use contrast: before and after, complicated and simple, ordinary and magical.</p>", "<p><strong>Design Move</strong></p><p>Show the product doing the work instead of explaining every feature.</p>", null, "#B388FF", 2, timestamp);
+  insertBlock.run("block-j3-4", "note-jobs-3", "text", "<p>A useful template: one audience, one pain, one surprising object, one sentence that survives after the slide deck is gone.</p>", null, null, null, null, "#FFEA00", 3, timestamp);
+
+  insertBlock.run("block-e1-5", "note-einstein-1", "image", null, "Albert Einstein portrait reference for curiosity notes.", null, null, "https://commons.wikimedia.org/wiki/Special:FilePath/Einstein_1921_by_F_Schmutzer_-_restoration.jpg", null, 4, timestamp);
+  insertBlock.run("block-e1-6", "note-einstein-1", "text", "<p>Curiosity here is not vague wonder. It is sustained attention to a contradiction: if light behaves this way, what must time be doing?</p><p>That habit is portable. Good questions often begin when a familiar explanation starts to feel too small.</p>", null, null, null, null, "#69F0AE", 5, timestamp);
+
+  insertBlock.run("block-e2-4", "note-einstein-2", "split", null, null, "<p><strong>Simplicity</strong></p><p>Remove the decoration until the principle can be seen.</p>", "<p><strong>Not Simpler</strong></p><p>Keep the complexity that reality actually requires.</p>", null, "#00E676", 3, timestamp);
+  insertBlock.run("block-e2-5", "note-einstein-2", "text", "<p>This is a useful rule for writing notes too. A note should be short enough to return to, but rich enough to recover the original insight.</p>", null, null, null, null, null, 4, timestamp);
+
+  insertBlock.run("block-e3-1", "note-einstein-3", "line", "Relativity begins by taking measurement seriously.", null, null, null, null, null, 0, timestamp);
+  insertBlock.run("block-e3-2", "note-einstein-3", "text", "<p>Special relativity asks what remains consistent when observers move relative to one another. The surprising answer is that time and distance can change, while the speed of light remains fixed.</p><p>General relativity goes further: gravity is not just a force pulling objects together; it can be understood as the curvature of spacetime itself.</p>", null, null, null, null, null, 1, timestamp);
+  insertBlock.run("block-e3-3", "note-einstein-3", "split", null, null, "<p><strong>Special Relativity</strong></p><p>Motion, light, time dilation, and the relation between mass and energy.</p>", "<p><strong>General Relativity</strong></p><p>Gravity, curved spacetime, planetary motion, and light bending around mass.</p>", null, "#00E5FF", 2, timestamp);
+  insertBlock.run("block-e3-4", "note-einstein-3", "verse", "Working prompt | What changes when the observer changes?", null, null, null, null, null, 3, timestamp);
+
+  insertBlock.run("block-d1-5", "note-davinci-1", "image", null, "Leonardo da Vinci self-portrait reference for Renaissance mind notes.", null, null, "https://commons.wikimedia.org/wiki/Special:FilePath/Leonardo_self.jpg", null, 4, timestamp);
+  insertBlock.run("block-d1-6", "note-davinci-1", "text", "<p>The Renaissance mind was not a mood; it was a method. Leonardo used drawing as a way to think, not only as a way to present finished art.</p><p>His notebooks show a loop: observe, sketch, compare, question, and return to the world with sharper eyes.</p>", null, null, null, null, "#FFD180", 5, timestamp);
+
+  insertBlock.run("block-d2-4", "note-davinci-2", "text", "<p>Observation becomes mastery when it is repeated across scales: the curl of hair, the movement of water, the branching of trees, the structure of muscles.</p><p>Different subjects taught the same lesson: form follows forces.</p>", null, null, null, null, null, 3, timestamp);
+  insertBlock.run("block-d2-5", "note-davinci-2", "split", null, null, "<p><strong>Look Longer</strong></p><p>Draw what is actually there before naming it.</p>", "<p><strong>Connect Wider</strong></p><p>Compare patterns across anatomy, machines, plants, and weather.</p>", null, "#FF80AB", 4, timestamp);
+
+  insertBlock.run("block-d3-1", "note-davinci-3", "line", "A notebook is a laboratory that fits in your hand.", null, null, null, null, null, 0, timestamp);
+  insertBlock.run("block-d3-2", "note-davinci-3", "text", "<p>Leonardo's pages mixed diagrams, questions, lists, mirrored writing, measurements, and speculative machines. The power came from proximity: ideas from different fields could collide on the same page.</p>", null, null, null, null, null, 1, timestamp);
+  insertBlock.run("block-d3-3", "note-davinci-3", "split", null, null, "<p><strong>Capture</strong></p><p>Sketch the thing before the impression fades.</p>", "<p><strong>Develop</strong></p><p>Return later with labels, comparisons, and next questions.</p>", null, "#69F0AE", 2, timestamp);
+  insertBlock.run("block-d3-4", "note-davinci-3", "text", "<p>Modern version: keep notes close to images, diagrams, and rough language. The unfinished quality is not a flaw; it keeps the thought alive.</p>", null, null, null, null, "#FFFFFF", 3, timestamp);
+}
+
 function getDb() {
   if (db) return db;
 
@@ -146,6 +206,7 @@ function getDb() {
   } catch { /* 이미 존재하면 무시 */ }
 
   seedIfEmpty(db);
+  seedExpandedContent(db);
   return db;
 }
 

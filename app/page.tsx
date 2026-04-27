@@ -739,6 +739,25 @@ export default function Page() {
                       </div>
                     )}
 
+                    {block.type === "split" && (
+                      <div className="note-split-grid">
+                        <div
+                          className="note-display-text rich note-split-panel"
+                          dangerouslySetInnerHTML={{ __html: block.left ?? "" }}
+                        />
+                        <div
+                          className="note-display-text rich note-split-panel"
+                          dangerouslySetInnerHTML={{ __html: block.right ?? "" }}
+                        />
+                        <button
+                          className="note-bubble-dots note-split-dots"
+                          aria-label="메뉴"
+                          onClick={(e) => { e.stopPropagation(); setOpenMenuBlockId(block.id); }}
+                          style={block.color ? { color: block.color } : undefined}
+                        >⋮</button>
+                      </div>
+                    )}
+
                     {block.type === "image" && (
                       <div className="note-image-wrap">
                         {block.imageUrl

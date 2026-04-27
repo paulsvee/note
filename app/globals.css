@@ -1020,6 +1020,10 @@ body {
   max-width: min(92%, 860px);
 }
 
+.note-bubble.split {
+  width: min(92%, 760px);
+}
+
 .note-bubble-inline {
   display: flex;
   align-items: flex-start;
@@ -1170,6 +1174,30 @@ body {
 
 .note-display-text.rich p:last-child {
   margin-bottom: 0;
+}
+
+.note-split-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: min(640px, 100%);
+}
+
+.note-split-panel {
+  min-width: 0;
+  padding: 2px 4px;
+}
+
+.note-split-panel + .note-split-panel {
+  border-left: 1px solid rgba(255,255,255,0.1);
+  padding-left: 14px;
+}
+
+.note-split-dots {
+  position: absolute;
+  top: 2px;
+  right: -8px;
 }
 
 .note-edit-area {
@@ -1513,6 +1541,22 @@ body {
 
   .note-bubble {
     max-width: 100%;
+  }
+
+  .note-bubble.split {
+    width: 100%;
+  }
+
+  .note-split-grid {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  .note-split-panel + .note-split-panel {
+    border-left: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-left: 4px;
+    padding-top: 12px;
   }
 
   .note-sidebar-brand {
