@@ -58,6 +58,14 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+const toParagraphs = (value: string) =>
+  value
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${line}</p>`)
+    .join("");
+
 export default function Page() {
   const ALL_FOLDER_ID = "all";
   const SELECTED_FOLDER_STORAGE_KEY = "note:selected-folder-id";
@@ -309,7 +317,14 @@ export default function Page() {
       payload.caption = trimmedText || null;
     } else {
       if (!trimmedText) return;
-      payload.content = `<p>${trimmedText}</p>`;
+      const splitParts = trimmedText.split("||").map((part) => part.trim());
+      if (splitParts.length === 2 && splitParts.every(Boolean)) {
+        payload.type = "split";
+        payload.left = toParagraphs(splitParts[0]);
+        payload.right = toParagraphs(splitParts[1]);
+      } else {
+        payload.content = toParagraphs(trimmedText);
+      }
     }
 
     await fetchJson("/api/blocks", {
@@ -827,7 +842,7 @@ export default function Page() {
                   }
                 }
               }}
-              placeholder="메모를 입력하고 Enter"
+              placeholder="메모 입력, split은 왼쪽 || 오른쪽"
             />
 
             <label className="note-upload-btn">
