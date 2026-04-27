@@ -218,7 +218,9 @@ function getDb() {
   } catch { /* 이미 존재하면 무시 */ }
 
   seedIfEmpty(db);
-  seedExpandedContent(db);
+  if (process.env.VERCEL === "1" || process.env.NOTE_SEED_EXPANDED === "1") {
+    seedExpandedContent(db);
+  }
   return db;
 }
 
