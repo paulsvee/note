@@ -81,6 +81,7 @@ export default function Page() {
   const [error, setError] = useState("");
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [inputModal, setInputModal] = useState<InputModalState>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,7 +94,7 @@ export default function Page() {
   const composerWrapRef = useRef<HTMLElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const dropzoneRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const touchDragRef = useRef<{ blockId: string; pointerId: number } | null>(null);
+  const touchDragRef = useRef<{ blockId: string; pointerId: number; startY: number } | null>(null);
   const [scrollRequest, setScrollRequest] = useState<{ behavior: "auto" | "smooth" } | null>(null);
   const [scrollReady, setScrollReady] = useState(false);
 
@@ -478,15 +479,17 @@ export default function Page() {
     if (event.pointerType !== "touch" || editingBlockId || isInteractiveTarget(event.target)) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    touchDragRef.current = { blockId, pointerId: event.pointerId };
+    touchDragRef.current = { blockId, pointerId: event.pointerId, startY: event.clientY };
     setDraggingId(blockId);
     setDropIndex(index);
+    setDragOffsetY(0);
   };
 
   const moveTouchReorder = (event: React.PointerEvent<HTMLElement>) => {
     const active = touchDragRef.current;
     if (!active || active.pointerId !== event.pointerId) return;
     event.preventDefault();
+    setDragOffsetY(event.clientY - active.startY);
     const nextIndex = getNearestDropIndex(event.clientY);
     if (nextIndex !== null) setDropIndex(nextIndex);
   };
@@ -496,6 +499,7 @@ export default function Page() {
     if (!active || active.pointerId !== event.pointerId) return;
     event.preventDefault();
     touchDragRef.current = null;
+    setDragOffsetY(0);
     const targetIndex = dropIndex;
     if (targetIndex === null) {
       setDraggingId(null);
@@ -769,8 +773,12 @@ export default function Page() {
                       touchDragRef.current = null;
                       setDraggingId(null);
                       setDropIndex(null);
+                      setDragOffsetY(0);
                     }}
-                    style={block.color ? { borderColor: `${block.color}99`, background: `linear-gradient(var(--pill-overlay), var(--pill-overlay)), ${block.color}` } : undefined}
+                    style={{
+                      ...(block.color ? { borderColor: `${block.color}99`, background: `linear-gradient(var(--pill-overlay), var(--pill-overlay)), ${block.color}` } : {}),
+                      ...(draggingId === block.id && dragOffsetY ? { transform: `translateY(${dragOffsetY}px) scale(1.01)` } : {})
+                    }}
                   >
                     <ColorImageOverlay
                       open={openMenuBlockId === block.id}
