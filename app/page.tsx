@@ -178,6 +178,20 @@ export default function Page() {
     !target.closest(".note-drag-handle") &&
     Boolean(target.closest("button, input, textarea, label, a, [contenteditable='true']"));
 
+  const setSelectedNoteBlockOrder = (orderedBlockIds: string[]) => {
+    setNotes((current) =>
+      current.map((note) => {
+        if (note.id !== selectedNoteId) return note;
+        const byId = new Map(note.blocks.map((block) => [block.id, block]));
+        const orderedBlocks = orderedBlockIds
+          .map((id) => byId.get(id))
+          .filter((block): block is Block => Boolean(block))
+          .map((block, sortOrder) => ({ ...block, sortOrder }));
+        return { ...note, blocks: orderedBlocks };
+      })
+    );
+  };
+
   useEffect(() => {
     const savedFolderId = window.localStorage.getItem(SELECTED_FOLDER_STORAGE_KEY) ?? undefined;
     const savedNoteId = window.localStorage.getItem(SELECTED_NOTE_STORAGE_KEY) ?? undefined;
@@ -460,7 +474,7 @@ export default function Page() {
     if (container) container.scrollTop = savedScrollTop;
   };
 
-  const reorderBlocks = async (orderedBlockIds: string[]) => {
+  const saveBlockOrder = async (orderedBlockIds: string[]) => {
     if (!selectedNote) return;
     await fetchJson("/api/blocks/reorder", {
       method: "POST",
@@ -470,22 +484,23 @@ export default function Page() {
         orderedBlockIds
       })
     });
-    await refreshData(selectedNote.id, selectedNote.folderId);
   };
 
   const handleDrop = async (insertIndex: number, blockId = draggingId) => {
     if (!selectedNote || !blockId) return;
+    const previous = selectedNote.blocks.map((block) => block.id);
     const ordered = selectedNote.blocks.map((block) => block.id).filter((id) => id !== blockId);
     ordered.splice(insertIndex, 0, blockId);
     setDragOffsetY(0);
     setActiveDropIndex(null);
+    setSelectedNoteBlockOrder(ordered);
+    setDraggingId(null);
     try {
-      await reorderBlocks(ordered);
+      await saveBlockOrder(ordered);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "순서를 저장하지 못했습니다.");
+      setSelectedNoteBlockOrder(previous);
       await refreshData(selectedNote.id, selectedNote.folderId, { quiet: true });
-    } finally {
-      setDraggingId(null);
     }
   };
 
