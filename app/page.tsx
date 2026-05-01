@@ -169,7 +169,35 @@ export default function Page() {
 
   const isInteractiveTarget = (target: EventTarget | null) =>
     target instanceof HTMLElement &&
+    !target.closest(".note-drag-handle") &&
     Boolean(target.closest("button, input, textarea, label, a, [contenteditable='true']"));
+
+  const setSelectedNoteBlockOrder = (orderedBlockIds: string[]) => {
+    setNotes((current) =>
+      current.map((note) => {
+        if (note.id !== selectedNoteId) return note;
+        const byId = new Map(note.blocks.map((block) => [block.id, block]));
+        const orderedBlocks = orderedBlockIds
+          .map((id) => byId.get(id))
+          .filter((block): block is Block => Boolean(block))
+          .map((block, sortOrder) => ({ ...block, sortOrder }));
+        return { ...note, blocks: orderedBlocks };
+      })
+    );
+  };
+
+  const animateBlockOrder = (orderedBlockIds: string[]) => {
+    const startViewTransition = (document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+    }).startViewTransition;
+
+    if (!startViewTransition) {
+      setSelectedNoteBlockOrder(orderedBlockIds);
+      return Promise.resolve();
+    }
+
+    return startViewTransition(() => setSelectedNoteBlockOrder(orderedBlockIds)).finished;
+  };
 
   useEffect(() => {
     const savedFolderId = window.localStorage.getItem(SELECTED_FOLDER_STORAGE_KEY) ?? undefined;
@@ -453,7 +481,7 @@ export default function Page() {
     if (container) container.scrollTop = savedScrollTop;
   };
 
-  const reorderBlocks = async (orderedBlockIds: string[]) => {
+  const reorderBlocks = async (orderedBlockIds: string[], options?: { refresh?: boolean }) => {
     if (!selectedNote) return;
     await fetchJson("/api/blocks/reorder", {
       method: "POST",
@@ -463,20 +491,30 @@ export default function Page() {
         orderedBlockIds
       })
     });
-    await refreshData(selectedNote.id, selectedNote.folderId);
+    if (options?.refresh !== false) {
+      await refreshData(selectedNote.id, selectedNote.folderId);
+    }
   };
 
   const handleDrop = async (insertIndex: number) => {
     if (!selectedNote || !draggingId) return;
     const ordered = selectedNote.blocks.map((block) => block.id).filter((id) => id !== draggingId);
     ordered.splice(insertIndex, 0, draggingId);
-    setDraggingId(null);
+    setDragOffsetY(0);
     setDropIndex(null);
-    await reorderBlocks(ordered);
+    try {
+      await animateBlockOrder(ordered);
+      setDraggingId(null);
+      await reorderBlocks(ordered, { refresh: false });
+    } catch (caught) {
+      setDraggingId(null);
+      setError(caught instanceof Error ? caught.message : "순서를 저장하지 못했습니다.");
+      await refreshData(selectedNote.id, selectedNote.folderId, { quiet: true });
+    }
   };
 
   const startTouchReorder = (event: React.PointerEvent<HTMLElement>, blockId: string, index: number) => {
-    if (event.pointerType !== "touch" || editingBlockId || isInteractiveTarget(event.target)) return;
+    if (editingBlockId || isInteractiveTarget(event.target)) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     touchDragRef.current = { blockId, pointerId: event.pointerId, startY: event.clientY };
@@ -760,13 +798,7 @@ export default function Page() {
 
                   <article
                     className={`note-bubble ${block.type}${editingBlockId === block.id ? " editing" : ""}${draggingId === block.id ? " dragging" : ""}`}
-                    draggable
-                    onDragStart={() => setDraggingId(block.id)}
-                    onDragEnd={() => {
-                      setDraggingId(null);
-                      setDropIndex(null);
-                    }}
-                    onPointerDown={(event) => startTouchReorder(event, block.id, index)}
+                    draggable={false}
                     onPointerMove={moveTouchReorder}
                     onPointerUp={finishTouchReorder}
                     onPointerCancel={() => {
@@ -780,6 +812,16 @@ export default function Page() {
                       ...(draggingId === block.id && dragOffsetY ? { transform: `translateY(${dragOffsetY}px) scale(1.01)` } : {})
                     }}
                   >
+                    {editingBlockId !== block.id ? (
+                      <button
+                        className="note-drag-handle"
+                        type="button"
+                        aria-label="순서 이동"
+                        onPointerDown={(event) => startTouchReorder(event, block.id, index)}
+                      >
+                        ::
+                      </button>
+                    ) : null}
                     <ColorImageOverlay
                       open={openMenuBlockId === block.id}
                       currentColor={block.color}

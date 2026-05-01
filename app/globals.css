@@ -1017,7 +1017,10 @@ body {
   scroll-margin-bottom: var(--note-thread-gap);
   transition: border-color 0.2s, background 0.2s, opacity 0.16s ease, transform 0.08s ease;
   position: relative;
-  touch-action: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  touch-action: pan-y pinch-zoom;
   user-select: text;
 }
 
@@ -1025,6 +1028,11 @@ body {
   opacity: 0.82;
   z-index: 5;
   box-shadow: 0 18px 46px rgba(0,0,0,0.24);
+}
+
+::view-transition-group(*) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .note-bubble.text {
@@ -1038,6 +1046,29 @@ body {
 .note-bubble.editing {
   width: min(92%, 860px);
   min-width: min(620px, calc(100vw - 96px));
+}
+
+.note-drag-handle {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin: 2px 0 0 -4px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: rgba(237, 243, 255, 0.38);
+  cursor: grab;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+.note-drag-handle:active {
+  cursor: grabbing;
+  color: rgba(237, 243, 255, 0.74);
 }
 
 .note-bubble-inline {
