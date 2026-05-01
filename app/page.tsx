@@ -92,6 +92,8 @@ export default function Page() {
   const editingTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const composerWrapRef = useRef<HTMLElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const dropzoneRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const touchDragRef = useRef<{ blockId: string; pointerId: number } | null>(null);
   const [scrollRequest, setScrollRequest] = useState<{ behavior: "auto" | "smooth" } | null>(null);
   const [scrollReady, setScrollReady] = useState(false);
 
@@ -143,6 +145,30 @@ export default function Page() {
       if (!options?.quiet) setLoading(false);
     }
   };
+
+  const setDropzoneRef = (index: number, node: HTMLDivElement | null) => {
+    if (node) dropzoneRefs.current.set(index, node);
+    else dropzoneRefs.current.delete(index);
+  };
+
+  const getNearestDropIndex = (clientY: number) => {
+    let nearestIndex: number | null = null;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    dropzoneRefs.current.forEach((node, index) => {
+      const rect = node.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const distance = Math.abs(clientY - center);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    return nearestIndex;
+  };
+
+  const isInteractiveTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement &&
+    Boolean(target.closest("button, input, textarea, label, a, [contenteditable='true']"));
 
   useEffect(() => {
     const savedFolderId = window.localStorage.getItem(SELECTED_FOLDER_STORAGE_KEY) ?? undefined;
@@ -336,14 +362,18 @@ export default function Page() {
       }
     }
 
-    await fetchJson("/api/blocks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setComposerText("");
-    await refreshData(selectedNote.id, selectedNote.folderId, { quiet: true });
-    setScrollRequest({ behavior: isNearBottom ? "auto" : "smooth" });
+    try {
+      await fetchJson("/api/blocks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setComposerText("");
+      await refreshData(selectedNote.id, selectedNote.folderId, { quiet: true });
+      setScrollRequest({ behavior: isNearBottom ? "auto" : "smooth" });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "메모를 저장하지 못했습니다.");
+    }
   };
 
   const updateBlock = async (blockId: string, patch: Partial<Block>) => {
@@ -442,6 +472,37 @@ export default function Page() {
     setDraggingId(null);
     setDropIndex(null);
     await reorderBlocks(ordered);
+  };
+
+  const startTouchReorder = (event: React.PointerEvent<HTMLElement>, blockId: string, index: number) => {
+    if (event.pointerType !== "touch" || editingBlockId || isInteractiveTarget(event.target)) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    touchDragRef.current = { blockId, pointerId: event.pointerId };
+    setDraggingId(blockId);
+    setDropIndex(index);
+  };
+
+  const moveTouchReorder = (event: React.PointerEvent<HTMLElement>) => {
+    const active = touchDragRef.current;
+    if (!active || active.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    const nextIndex = getNearestDropIndex(event.clientY);
+    if (nextIndex !== null) setDropIndex(nextIndex);
+  };
+
+  const finishTouchReorder = (event: React.PointerEvent<HTMLElement>) => {
+    const active = touchDragRef.current;
+    if (!active || active.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    touchDragRef.current = null;
+    const targetIndex = dropIndex;
+    if (targetIndex === null) {
+      setDraggingId(null);
+      setDropIndex(null);
+      return;
+    }
+    void handleDrop(targetIndex);
   };
 
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -681,6 +742,7 @@ export default function Page() {
                 return (
                 <div key={block.id}>
                   <div
+                    ref={(node) => setDropzoneRef(index, node)}
                     className={`note-dropzone${dropIndex === index ? " active" : ""}`}
                     onDragOver={(event) => {
                       event.preventDefault();
@@ -693,10 +755,18 @@ export default function Page() {
                   />
 
                   <article
-                    className={`note-bubble ${block.type}${editingBlockId === block.id ? " editing" : ""}`}
+                    className={`note-bubble ${block.type}${editingBlockId === block.id ? " editing" : ""}${draggingId === block.id ? " dragging" : ""}`}
                     draggable
                     onDragStart={() => setDraggingId(block.id)}
                     onDragEnd={() => {
+                      setDraggingId(null);
+                      setDropIndex(null);
+                    }}
+                    onPointerDown={(event) => startTouchReorder(event, block.id, index)}
+                    onPointerMove={moveTouchReorder}
+                    onPointerUp={finishTouchReorder}
+                    onPointerCancel={() => {
+                      touchDragRef.current = null;
                       setDraggingId(null);
                       setDropIndex(null);
                     }}
@@ -813,6 +883,7 @@ export default function Page() {
               );})}
 
               <div
+                ref={(node) => setDropzoneRef(selectedNote.blocks.length, node)}
                 className={`note-dropzone${dropIndex === selectedNote.blocks.length ? " active" : ""}`}
                 onDragOver={(event) => {
                   event.preventDefault();

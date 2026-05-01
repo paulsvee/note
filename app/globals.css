@@ -1014,6 +1014,13 @@ body {
   align-self: flex-start;
   scroll-margin-bottom: var(--note-thread-gap);
   transition: border-color 0.2s, background 0.2s;
+  touch-action: none;
+  user-select: text;
+}
+
+.note-bubble.dragging {
+  opacity: 0.72;
+  transform: scale(0.995);
 }
 
 .note-bubble.text {
