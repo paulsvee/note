@@ -295,6 +295,15 @@ export default function Page() {
     await refreshData(result.noteId, targetFolder.id);
   };
 
+  const fromParagraphHtml = (value: string | null) =>
+    (value ?? "")
+      .replace(/<p>/gi, "")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\n{2,}/g, "\n")
+      .trim();
+
   const addBlock = async (override?: { imageUrl?: string }) => {
     if (!selectedNote) return;
     const trimmedText = composerText.trim();
@@ -318,10 +327,10 @@ export default function Page() {
     } else {
       if (!trimmedText) return;
       const splitParts = trimmedText.split("||").map((part) => part.trim());
-      if (splitParts.length === 2 && splitParts.every(Boolean)) {
+      if (splitParts.length >= 2 && splitParts[0] && splitParts.slice(1).join(" ").trim()) {
         payload.type = "split";
         payload.left = toParagraphs(splitParts[0]);
-        payload.right = toParagraphs(splitParts[1]);
+        payload.right = toParagraphs(splitParts.slice(1).join(" || "));
       } else {
         payload.content = toParagraphs(trimmedText);
       }
@@ -364,23 +373,24 @@ export default function Page() {
   };
 
   const toEditableText = (block: Block) => {
+    if (block.type === "split") {
+      return `${fromParagraphHtml(block.left)}\n||\n${fromParagraphHtml(block.right)}`.trim();
+    }
     if (!block.content) return "";
     if (block.type !== "text") return block.content;
-    return block.content
-      .replace(/<p>/gi, "")
-      .replace(/<\/p>/gi, "\n")
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/\n{2,}/g, "\n")
-      .trim();
+    return fromParagraphHtml(block.content);
   };
 
-  const toStoredContent = (block: Block, value: string) => {
-    if (block.type !== "text") return value.trim();
-    const paragraphs = value
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-    return paragraphs.map((line) => `<p>${line}</p>`).join("") || "<p></p>";
+  const toStoredBlockPatch = (block: Block, value: string): Partial<Block> => {
+    if (block.type === "split") {
+      const parts = value.split("||").map((part) => part.trim());
+      return {
+        left: toParagraphs(parts[0] ?? ""),
+        right: toParagraphs(parts.slice(1).join(" || "))
+      };
+    }
+    if (block.type !== "text") return { content: value.trim() };
+    return { content: toParagraphs(value) };
   };
 
   const startEditingBlock = (block: Block) => {
@@ -392,7 +402,7 @@ export default function Page() {
   const commitEditingBlock = async (block: Block) => {
     if (editingBlockId !== block.id) return;
     setEditingBlockId(null);
-    await updateBlock(block.id, { content: toStoredContent(block, editingValue) });
+    await updateBlock(block.id, toStoredBlockPatch(block, editingValue));
   };
 
   useEffect(() => {
@@ -683,7 +693,7 @@ export default function Page() {
                   />
 
                   <article
-                    className={`note-bubble ${block.type}`}
+                    className={`note-bubble ${block.type}${editingBlockId === block.id ? " editing" : ""}`}
                     draggable
                     onDragStart={() => setDraggingId(block.id)}
                     onDragEnd={() => {
@@ -701,10 +711,10 @@ export default function Page() {
                       onClose={() => setOpenMenuBlockId(null)}
                     />
 
-                    {(block.type === "line" || block.type === "verse" || block.type === "text") && editingBlockId === block.id ? (
+                    {(block.type === "line" || block.type === "verse" || block.type === "text" || block.type === "split") && editingBlockId === block.id ? (
                       <textarea
                         ref={editingTextareaRef}
-                        className={`note-edit-area ${block.type === "text" ? "rich" : ""}`}
+                        className={`note-edit-area ${block.type === "text" || block.type === "split" ? "rich" : ""}`}
                         value={editingValue}
                         onChange={(event) => setEditingValue(event.target.value)}
                         onBlur={() => void commitEditingBlock(block)}
@@ -754,14 +764,16 @@ export default function Page() {
                       </div>
                     )}
 
-                    {block.type === "split" && (
+                    {block.type === "split" && editingBlockId !== block.id && (
                       <div className="note-split-grid">
                         <div
                           className="note-display-text rich note-split-panel"
+                          onDoubleClick={() => startEditingBlock(block)}
                           dangerouslySetInnerHTML={{ __html: block.left ?? "" }}
                         />
                         <div
                           className="note-display-text rich note-split-panel"
+                          onDoubleClick={() => startEditingBlock(block)}
                           dangerouslySetInnerHTML={{ __html: block.right ?? "" }}
                         />
                         <button

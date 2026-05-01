@@ -1024,6 +1024,11 @@ body {
   width: min(92%, 760px);
 }
 
+.note-bubble.editing {
+  width: min(92%, 860px);
+  min-width: min(620px, calc(100vw - 96px));
+}
+
 .note-bubble-inline {
   display: flex;
   align-items: flex-start;
@@ -1217,11 +1222,11 @@ body {
   letter-spacing: -0.02em;
   font-family: inherit;
   font-weight: 400;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .note-edit-area.rich {
-  min-height: 78px;
+  min-height: 132px;
 }
 
 .note-image-stack {
