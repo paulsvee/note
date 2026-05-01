@@ -95,6 +95,7 @@ export default function Page() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const dropzoneRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const touchDragRef = useRef<{ blockId: string; pointerId: number; startY: number } | null>(null);
+  const dropIndexRef = useRef<number | null>(null);
   const [scrollRequest, setScrollRequest] = useState<{ behavior: "auto" | "smooth" } | null>(null);
   const [scrollReady, setScrollReady] = useState(false);
 
@@ -150,6 +151,11 @@ export default function Page() {
   const setDropzoneRef = (index: number, node: HTMLDivElement | null) => {
     if (node) dropzoneRefs.current.set(index, node);
     else dropzoneRefs.current.delete(index);
+  };
+
+  const setActiveDropIndex = (index: number | null) => {
+    dropIndexRef.current = index;
+    setDropIndex(index);
   };
 
   const getNearestDropIndex = (clientY: number) => {
@@ -501,7 +507,7 @@ export default function Page() {
     const ordered = selectedNote.blocks.map((block) => block.id).filter((id) => id !== draggingId);
     ordered.splice(insertIndex, 0, draggingId);
     setDragOffsetY(0);
-    setDropIndex(null);
+    setActiveDropIndex(null);
     try {
       await animateBlockOrder(ordered);
       setDraggingId(null);
@@ -519,7 +525,7 @@ export default function Page() {
     event.currentTarget.setPointerCapture(event.pointerId);
     touchDragRef.current = { blockId, pointerId: event.pointerId, startY: event.clientY };
     setDraggingId(blockId);
-    setDropIndex(index);
+    setActiveDropIndex(index);
     setDragOffsetY(0);
   };
 
@@ -529,7 +535,7 @@ export default function Page() {
     event.preventDefault();
     setDragOffsetY(event.clientY - active.startY);
     const nextIndex = getNearestDropIndex(event.clientY);
-    if (nextIndex !== null) setDropIndex(nextIndex);
+    if (nextIndex !== null) setActiveDropIndex(nextIndex);
   };
 
   const finishTouchReorder = (event: React.PointerEvent<HTMLElement>) => {
@@ -538,10 +544,10 @@ export default function Page() {
     event.preventDefault();
     touchDragRef.current = null;
     setDragOffsetY(0);
-    const targetIndex = dropIndex;
+    const targetIndex = dropIndexRef.current;
     if (targetIndex === null) {
       setDraggingId(null);
-      setDropIndex(null);
+      setActiveDropIndex(null);
       return;
     }
     void handleDrop(targetIndex);
@@ -804,7 +810,7 @@ export default function Page() {
                     onPointerCancel={() => {
                       touchDragRef.current = null;
                       setDraggingId(null);
-                      setDropIndex(null);
+                      setActiveDropIndex(null);
                       setDragOffsetY(0);
                     }}
                     style={{
@@ -818,6 +824,14 @@ export default function Page() {
                         type="button"
                         aria-label="순서 이동"
                         onPointerDown={(event) => startTouchReorder(event, block.id, index)}
+                        onPointerMove={moveTouchReorder}
+                        onPointerUp={finishTouchReorder}
+                        onPointerCancel={() => {
+                          touchDragRef.current = null;
+                          setDraggingId(null);
+                          setActiveDropIndex(null);
+                          setDragOffsetY(0);
+                        }}
                       >
                         ::
                       </button>
